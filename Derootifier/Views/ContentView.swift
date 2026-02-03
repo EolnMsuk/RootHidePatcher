@@ -146,8 +146,9 @@ struct ContentView: View {
                     destination: CreditsView(),
                     label: {
                         HStack {
-                            Text("Credits")
-                            Image(systemName: "chevron.right")
+//                            Text("Credits")
+//                            Image(systemName: "chevron.right")
+                            Text("Sileo will be automatically re-opened")
                         }
                         .foregroundColor(.white.opacity(0.8))
                         .font(.system(size: 15))
