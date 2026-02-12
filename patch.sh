@@ -80,7 +80,7 @@ DEB_VERSION=$(grep '^Version:' "$TEMPDIR_OLD"/DEBIAN/control | cut -f2 -d ' ' | 
 DEB_ARCH=$(grep '^Architecture:' "$TEMPDIR_OLD"/DEBIAN/control | cut -f2 -d ' ' | tr -d '\n\r')
 DEB_MAINTAINER=$(grep '^Maintainer:' "$TEMPDIR_OLD"/DEBIAN/control | $SED -E 's/^Maintainer:\s*//' | tr -d '\n\r')
 
-INCOMPATIBLE_PACKAGES=("xinam1ne" "xinamine" "legizmo" "vnodebypass" "voicechangerx-rootless" "appsyncunified", "choicy", "com.tigisoftware.filza")
+INCOMPATIBLE_PACKAGES=("xinam1ne" "xinamine" "legizmo" "vnodebypass" "voicechangerx-rootless" "appsyncunified" "choicy" "com.tigisoftware.filza" "sileo" "zebra" "com.opa334.ccsupport" "ws.hbang.common" "libsandy" "preferenceloader" "newterm3" "altlist")
 
 # not tweaks
 if [[ {ellekit,oldabi} =~ "$DEB_PACKAGE" ]] || [ "$DEB_MAINTAINER" == "Procursus Team <support@procurs.us>" ]; then
