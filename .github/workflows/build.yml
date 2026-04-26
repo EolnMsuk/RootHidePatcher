@@ -22,6 +22,8 @@ jobs:
 
       - name: 🚀 Execute Build Command
         run: |
+          sed -i '' 's/Derootifier.xcodeproj/RootHidePatcher.xcodeproj/g' ./build.command
+          sed -i '' 's/-scheme Derootifier/-scheme RootHidePatcher/g' ./build.command
           chmod +x ./build.command
           ./build.command
 
