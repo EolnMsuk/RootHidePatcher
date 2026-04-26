@@ -1,0 +1,74 @@
+name: ⚡ Procursus Build Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Target package (e.g., nano, bash, curl)'
+        required: true
+        default: 'nano'
+      memo_target:
+        description: 'MEMO_TARGET (e.g., iphoneos-arm64, darwin-arm64)'
+        required: true
+        default: 'iphoneos-arm64'
+      memo_cfver:
+        description: 'MEMO_CFVER (1700=iOS14, 1800=iOS15, 1900=iOS16)'
+        required: true
+        default: '1800'
+
+jobs:
+  build:
+    name: Build ${{ github.event.inputs.package || 'nano' }} (${{ github.event.inputs.memo_target || 'iphoneos-arm64' }})
+    runs-on: macos-latest
+    
+    steps:
+      - name: ⬇️ Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: 📦 Install GNU Build Dependencies
+        run: |
+          brew update
+          brew install make gnu-tar gnu-sed coreutils findutils autoconf automake libtool pkg-config xz zstd lz4 fakeroot ldid
+          
+      - name: ⚙️ Configure SDK Paths
+        id: sdk
+        run: |
+          if [[ "${{ github.event.inputs.memo_target || 'iphoneos-arm64' }}" == *"iphoneos"* ]]; then
+            echo "sysroot=$(xcrun --sdk iphoneos --show-sdk-path)" >> $GITHUB_ENV
+          else
+            echo "sysroot=$(xcrun --sdk macosx --show-sdk-path)" >> $GITHUB_ENV
+          fi
+
+      - name: 🔨 Compile Package
+        env:
+          MEMO_TARGET: ${{ github.event.inputs.memo_target || 'iphoneos-arm64' }}
+          MEMO_CFVER: ${{ github.event.inputs.memo_cfver || '1800' }}
+          TARGET_SYSROOT: ${{ env.sysroot }}
+          NO_PGP: 1
+        run: |
+          # Homebrew installs GNU Make as 'gmake'
+          gmake ${{ github.event.inputs.package || 'nano' }}-package
+
+      - name: ✅ Validate Build Artifacts
+        run: |
+          echo "► Checking build distribution directory..."
+          if [ -d "build_dist" ] && [ "$(ls -A build_dist)" ]; then
+            echo "⚡ Build successful. Artifacts found:"
+            find build_dist -name "*.deb" -type f
+          else
+            echo "❌ Validation Failed: No artifacts generated in build_dist/."
+            exit 1
+          fi
+
+      - name: 📤 Upload DEB Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: procursus-${{ github.event.inputs.package || 'nano' }}-${{ github.event.inputs.memo_target || 'iphoneos-arm64' }}
+          path: build_dist/**/*.deb
+          if-no-files-found: error
