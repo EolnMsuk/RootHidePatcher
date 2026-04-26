@@ -22,8 +22,12 @@ jobs:
 
       - name: 🚀 Execute Build Command
         run: |
-          # Patch the root variable to cascade the new name to xcodebuild and zip functions
+          # Patch project name for xcodebuild target resolution
           sed -i '' 's/APPLICATION_NAME=Derootifier/APPLICATION_NAME=RootHidePatcher/g' ./build.command
+          
+          # Patch binary extraction to match actual Xcode PRODUCT_NAME
+          sed -i '' 's/$APPLICATION_NAME.app/Patcher.app/g' ./build.command
+          sed -i '' 's/${APPLICATION_NAME}.app/Patcher.app/g' ./build.command
           
           # Assign executable permissions and invoke
           chmod +x ./build.command
